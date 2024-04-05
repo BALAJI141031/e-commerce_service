@@ -16,6 +16,14 @@ export class UserRepository {
       data,
     });
   }
+  async updateByEmail(email: string, data: Prisma.UserUpdateInput) {
+    await this.prismaService.user.update({
+      where: {
+        email,
+      },
+      data,
+    });
+  }
   async getUserByEmail(email: string, select: Prisma.UserSelect) {
     const resp = await this.prismaService.user.findFirstOrThrow({
       where: { email },

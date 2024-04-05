@@ -1,18 +1,35 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { SignUpDto } from 'libs/dto/user.dto';
 import * as argon from 'argon2';
 import { UserRepository } from './user.repository';
 import { sendEmail } from 'libs/comms/email';
 import { generateOTP } from 'libs/utils/constant.methods';
+import { OtpRepository } from './otp.repository';
+import { TokenService } from 'src/auth/authToken.service';
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly otpRepository: OtpRepository,
+    private readonly tokenService: TokenService,
+  ) {}
   async signup(userData: SignUpDto) {
     try {
       const { name, password, email } = userData;
       const hash = await argon.hash(password);
-      await this.userRepository.create({ name, passwordHash: hash, email });
+      const user = await this.userRepository.create({
+        name,
+        passwordHash: hash,
+        email,
+      });
+
       const otp = generateOTP();
+      await this.otpRepository.create(otp, user?.id);
       sendEmail({
         to: email,
         subject: 'Verification Code',
@@ -25,6 +42,17 @@ export class UserService {
         'Failed To Create User',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+  async verifyOtp(email: string, otpCode: string) {
+    const savedOtp = await this.otpRepository.get(email, otpCode);
+    if (savedOtp) {
+      this.otpRepository.delete(savedOtp.id);
+      this.userRepository.updateByEmail(email, { verified: true });
+      // auth tokens need to send
+      return await this.tokenService.getTokens(email);
+    } else {
+      throw new BadRequestException('Invalid Code');
     }
   }
 }
