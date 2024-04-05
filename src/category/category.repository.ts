@@ -10,16 +10,21 @@ export class CategoryRepository {
   }
   async get(email: string, pageNo: number, pageSize: number) {
     const skip = (pageNo - 1) * pageSize;
-    await this.prismaService.userCategoryPreference.findMany({
+    return await this.prismaService.category.findMany({
       skip,
       take: pageSize,
-      where: {
-        email,
-      },
       include: {
-        category: true,
+        likedByUsers: {
+          where: {
+            email,
+          },
+        },
       },
     });
+  }
+
+  async addPreferences(data: { email: string; categoryId: string }[]) {
+    return await this.prismaService.userCategoryPreference.createMany({ data });
   }
   async delete(id: number) {
     return await this.prismaService.oTP.delete({ where: { id } });

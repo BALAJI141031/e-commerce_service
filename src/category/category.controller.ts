@@ -20,4 +20,11 @@ export class CategoryController {
       pageSize,
     );
   }
+  @Post('preferences')
+  async addPreferences(@Body() preferences: string[]) {
+    return await this.categoryService.addPreferences(
+      preferences,
+      'balajiab09@gmail.com',
+    );
+  }
 }

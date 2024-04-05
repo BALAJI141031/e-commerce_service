@@ -34,7 +34,7 @@ model OTP {
 }
 
 model Category {
-  id           Int                      @id @default(autoincrement())
+  id           String                   @id @default(cuid())
   name         String
   likedByUsers UserCategoryPreference[]
 }
@@ -44,6 +44,6 @@ model UserCategoryPreference {
   user       User     @relation(fields: [email], references: [email])
   email      String
   category   Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
+  categoryId String
   createdAt  DateTime @default(now())
 }

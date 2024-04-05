@@ -17,9 +17,23 @@ export class CategoryService {
   }
   async get(email: string, pageNo: number, pageSize: number) {
     try {
-      return await this.categoryRepository.get(email, pageNo, pageSize);
+      const resp = await this.categoryRepository.get(email, +pageNo, +pageSize);
+      console.log(resp, '-------------------->');
+      return resp;
     } catch (error) {
-      // throw
+      console.log(error);
+      throw 'error occurred';
+    }
+  }
+  async addPreferences(preferences: string[], email: string) {
+    try {
+      const preferencesWithEmail = preferences.map((categoryId) => ({
+        categoryId,
+        email,
+      }));
+      return await this.categoryRepository.addPreferences(preferencesWithEmail);
+    } catch (error) {
+      throw error;
     }
   }
 }
