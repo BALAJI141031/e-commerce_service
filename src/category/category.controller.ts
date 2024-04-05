@@ -21,9 +21,9 @@ export class CategoryController {
     );
   }
   @Post('preferences')
-  async addPreferences(@Body() preferences: string[]) {
+  async addPreferences(@Body() body: { preferences: string[] }) {
     return await this.categoryService.addPreferences(
-      preferences,
+      body.preferences,
       'balajiab09@gmail.com',
     );
   }
