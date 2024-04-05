@@ -14,14 +14,15 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  verified     Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  OTP          OTP[]
+  id                     String                   @id @default(cuid())
+  name                   String
+  email                  String                   @unique
+  passwordHash           String
+  verified               Boolean                  @default(false)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  OTP                    OTP[]
+  UserCategoryPreference UserCategoryPreference[]
 }
 
 model OTP {
@@ -30,4 +31,19 @@ model OTP {
   otpCode   String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [email], references: [email])
+}
+
+model Category {
+  id           Int                      @id @default(autoincrement())
+  name         String
+  likedByUsers UserCategoryPreference[]
+}
+
+model UserCategoryPreference {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [email], references: [email])
+  email      String
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  createdAt  DateTime @default(now())
 }
